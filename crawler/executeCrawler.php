@@ -39,9 +39,11 @@ function detectLanguage($page){
     // ************************************************
     // ************************************************
     // Detector de idioma
-    $detector = new LanguageDetector\LanguageDetector();
-    $language = $detector->evaluate($page)->getLanguage();
-    return $language; // Prints something like 'en'
+    // $detector = new LanguageDetector\LanguageDetector();
+    // $language = $detector->evaluate($page)->getLanguage();
+    // return $language; 
+    // Prints something like 'en'
+    return \LanguageDetector\LanguageDetector::detect($page);
 }
 function Singular($page, $lang){
     $language = strval($lang);
