@@ -19,8 +19,9 @@ function Home() {
                 setSearchResult([]);
                 return;
             }
+            search = "content:*" + search
             //consulta la corrección de palabras
-            let spell_words = await fetch('http://localhost:8983/solr/briwtest/spell?q=' + search);
+            let spell_words = await fetch('http://localhost:8983/solr/mycore/spell?q=' + search);
             let _spell = await spell_words.json();
             console.log(_spell);
             //verifica la existencia de sugerencias y actualiza el estado
@@ -41,7 +42,7 @@ function Home() {
             console.log(expand_search ? expand_search : []);
 
             //realiza la busqueda de las palabras expandidas
-            data = await fetch('http://localhost:8983/solr/briwtest/select?rows=100&fl=*%2Cscore&q=' + expand_search);
+            data = await fetch('http://localhost:8983/solr/mycore/select?rows=100&fl=*%2Cscore&q=' +  expand_search);
             const items = await data.json();
             console.log(items.response.docs);
             setSearchResult(items.response.docs);
@@ -57,7 +58,7 @@ function Home() {
     
     useEffect(async () => {
         try {
-            let data = await fetch('http://localhost:8983/solr/briwtest/suggest?suggest=true&suggest.build=true&suggest.dictionary=default&wt=json&suggest.q=' + search);
+            let data = await fetch('http://localhost:8983/solr/mycore/suggest?suggest=true&suggest.build=true&suggest.dictionary=default&wt=json&suggest.q=' + search);
             const result = await data.json();
             console.log(search);
             console.log(result.suggest.default[search].suggestions);
@@ -75,7 +76,7 @@ function Home() {
     return (
         <div>
             <div className="container mt-5">
-                <h1 className="animate__animated animate__bounceInLeft animate__delay-.5s text-center">BRIW</h1>
+                <h1 className="animate__animated animate__bounceInLeft animate__delay-.5s text-center">Awesome demo</h1>
             </div>
             <div className="container mt-5 mx-auto" style={{ width: "800px" }}>
 
@@ -101,23 +102,23 @@ function Home() {
             <div className="container mt-2" style={{ width: "700px" }}>
                 {!spell.length ? '' : <div className="card">
                     <div className="card-body">
-                        Quzás quisiste decir: {spell.map((item) => (item.word + ' '))}
+                        Did you mean: {spell.map((item) => (item.word + ' '))}
                     </div>
                 </div>
                 }
             </div>
             {!searchResult.length ? '' : <div className="container mt-2" style={{ width: "700px" }}>
-                <h3 className="animate__animated animate__bounceInLeft animate__delay-.1s" >Resultados</h3>
+                <h3 className="animate__animated animate__bounceInLeft animate__delay-.1s" >Results</h3>
             </div>}
 
             {searchResult.map(doc => (
                 <div key={doc.id} className="container-sm mt-2 mx-auto" style={{ width: "700px" }} >
                     <div className="list-group">
-                        <a href={doc.link} className="list-group-item list-group-item-action " aria-current="true">
+                        <a href={doc.id} className="list-group-item list-group-item-action " aria-current="true">
                             <div className="d-flex w-100 justify-content-between">
-                                <h5 className="mb-1">{doc.titulo_es[0]}</h5>
+                                <h5 className="mb-1">{doc.id}</h5>
                             </div>
-                            <p className="mb-1">{doc.snippet[0]}</p>
+                            <p className="mb-1">{doc.id}</p>
                             <small>score: {doc.score}</small>
                         </a>
                     </div>
