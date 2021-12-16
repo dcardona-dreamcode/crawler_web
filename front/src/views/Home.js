@@ -12,40 +12,41 @@ function Home() {
     const fetchSearch = async (search) => {
         let data;
         try {
-            //si no hay palabra presente todo muere
+            
             if(!search){
                 setSpell([]);
                 setExpandWords([]);
                 setSearchResult([]);
                 return;
-            }
-            search = "content:*" + search
-            //consulta la corrección de palabras
-            let spell_words = await fetch('http://localhost:8983/solr/mycore/spell?q=' + search);
-            let _spell = await spell_words.json();
-            console.log(_spell);
-            //verifica la existencia de sugerencias y actualiza el estado
-            if(_spell.spellcheck){
-                setSpell(_spell.spellcheck.suggestions.length ? _spell.spellcheck.suggestions[1].suggestion : []);
-            }else{
-                setSpell([]);
-            }
-            //expande las busqueda 
-            let expand_words = await fetch('https://api.datamuse.com/words?ml=' + search + '&v=es&max=10');
-            let words = await expand_words.json()
-            setExpandWords(words ? words : [])
-            let expand_search = search;
-            for (let index = 0; index < words.length; index++) {
-                expand_search = expand_search + " OR " + words[index].word;
+            } else {
+                search = `content:*${search}`
+                //consulta la corrección de palabras
+                let spell_words = await fetch(`http://localhost:8983/solr/mycore/spell?q=${search}`);
+                let _spell = await spell_words.json();
+                
+                //verifica la existencia de sugerencias y actualiza el estado
+                if(_spell.spellcheck){
+                    setSpell(_spell.spellcheck.suggestions.length ? _spell.spellcheck.suggestions[1].suggestion : []);
+                }else{
+                    setSpell([]);
+                }
 
-            }
-            console.log(expand_search ? expand_search : []);
+                //expande las busqueda 
+                let expand_words = await fetch(`https://api.datamuse.com/words?ml='${search}&v=es&max=10`);
+                let words = await expand_words.json()
+                setExpandWords(words ? words : [])
+                let expand_search = search;
+                for (let index = 0; index < words.length; index++) {
+                    expand_search = expand_search + " OR " + words[index].word;
 
-            //realiza la busqueda de las palabras expandidas
-            data = await fetch('http://localhost:8983/solr/mycore/select?rows=100&fl=*%2Cscore&q=' +  expand_search);
-            const items = await data.json();
-            console.log(items.response.docs);
-            setSearchResult(items.response.docs);
+                }
+
+                //realiza la busqueda de las palabras expandidas
+                data = await fetch(`http://localhost:8983/solr/mycore/select?rows=100&fl=*%2Cscore&q=${expand_search}`);
+                const items = await data.json();
+                setSearchResult(items.response.docs);
+            }
+            
         } catch (err) {
             console.log(err);
         }
@@ -55,18 +56,6 @@ function Home() {
     const searchChangeHandler = (event) => {
         setSearch(event.target.value);
     }
-    
-    useEffect(async () => {
-        try {
-            let data = await fetch('http://localhost:8983/solr/mycore/suggest?suggest=true&suggest.build=true&suggest.dictionary=default&wt=json&suggest.q=' + search);
-            const result = await data.json();
-            console.log(search);
-            console.log(result.suggest.default[search].suggestions);
-            setSuggests(result.suggest.default[search].suggestions)
-        } catch (err) {
-            console.log(err);
-        }
-    }, [search]);
 
     const SubmitHandler = (event) => {
         event.preventDefault();
@@ -78,8 +67,8 @@ function Home() {
             <div className="container mt-5">
                 <h1 className="animate__animated animate__bounceInLeft animate__delay-.5s text-center">Awesome demo</h1>
             </div>
-            <div className="container mt-5 mx-auto" style={{ width: "800px" }}>
 
+            <div className="container mt-5 mx-auto" style={{ width: "800px" }}>
                 <div className="container-fluid">
                     <form className="d-flex" onSubmit={SubmitHandler}>
                         <input className="form-control " list="datalistOptions" type="search" placeholder="Search" aria-label="Search" value={search} onChange={searchChangeHandler} />
@@ -100,13 +89,13 @@ function Home() {
             </div>
 
             <div className="container mt-2" style={{ width: "700px" }}>
-                {!spell.length ? '' : <div className="card">
-                    <div className="card-body">
-                        Did you mean: {spell.map((item) => (item.word + ' '))}
-                    </div>
+                { !spell.length ? '' : 
+                <div className="card">
+                    <div className="card-body">Did you mean: {spell.map((item) => (item.word + ' '))}</div>
                 </div>
                 }
             </div>
+
             {!searchResult.length ? '' : <div className="container mt-2" style={{ width: "700px" }}>
                 <h3 className="animate__animated animate__bounceInLeft animate__delay-.1s" >Results</h3>
             </div>}
@@ -118,12 +107,13 @@ function Home() {
                             <div className="d-flex w-100 justify-content-between">
                                 <h5 className="mb-1">{doc.id}</h5>
                             </div>
-                            <p className="mb-1">{doc.id}</p>
+                            <p className="mb-1">{doc.host[0]}</p>
                             <small>score: {doc.score}</small>
                         </a>
                     </div>
                 </div>
             ))}
+
         </div>
     );
 }

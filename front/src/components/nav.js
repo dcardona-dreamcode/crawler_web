@@ -4,10 +4,7 @@ function Nav() {
     return (
         <ul className="nav justify-content-end">
             <li className="nav-item">
-                <a className="nav-link active" href="/">buscador</a>
-            </li>
-            <li className="nav-item">
-                <a className="nav-link" href="/crawler">crawler</a>
+                <a className="nav-link active" href="/">browser</a>
             </li>
         </ul>
     );

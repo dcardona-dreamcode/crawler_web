@@ -1,8 +1,6 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import Home from './views/Home';
-import Crawling from './views/Crawler';
 import Nav from './components/nav';
 import {
   BrowserRouter as Router,
@@ -16,8 +14,7 @@ function App() {
       <Nav/>
       <Router>
       <Switch>
-      <Route path='/' exact component={Home} />
-      <Route path='/crawler' exact component={Crawling} />
+        <Route path='/' exact component={Home} />
       </Switch>
       </Router>
       
